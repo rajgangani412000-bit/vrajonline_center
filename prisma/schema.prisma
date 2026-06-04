@@ -1,0 +1,277 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  STAFF
+}
+
+enum CustomerStatus {
+  NEW
+  PENDING
+  IN_PROCESS
+  APPROVED
+  DELIVERED
+  REJECTED
+}
+
+enum ApplicationStep {
+  SUBMITTED
+  PROCESSING
+  APPROVED
+  PRINTED
+  DELIVERED
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  BANK
+}
+
+enum ExpenseCategory {
+  RENT
+  ELECTRICITY
+  INTERNET
+  PVC_MATERIAL
+  PRINTING_COST
+  SALARY
+  MISCELLANEOUS
+}
+
+enum PvcStatus {
+  PRINT_QUEUE
+  PRINTED
+  DELIVERED
+}
+
+enum ReminderType {
+  PENDING_CUSTOMER
+  PENDING_PAYMENT
+  ADMISSION_DEADLINE
+  DOCUMENT_COLLECTION
+}
+
+enum BlogStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+}
+
+model User {
+  id                  String     @id @default(cuid())
+  name                String
+  email               String     @unique
+  passwordHash        String
+  role                Role       @default(STAFF)
+  forcePasswordChange Boolean    @default(false)
+  isActive            Boolean    @default(true)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  customersCreated    Customer[] @relation("CustomerCreatedBy")
+  auditLogs           AuditLog[]
+  posts               BlogPost[]
+}
+
+model Service {
+  id             String               @id @default(cuid())
+  slug           String               @unique
+  name           String
+  description    String
+  charges        Decimal              @db.Decimal(10, 2)
+  documents      String[]
+  processingTime String
+  category       String
+  isActive       Boolean              @default(true)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  customers      Customer[]
+  applications   ServiceApplication[]
+  payments       Payment[]
+}
+
+model Customer {
+  id             String               @id @default(cuid())
+  customerCode   String               @unique
+  name           String
+  mobile         String
+  address        String
+  documents      String[]
+  notes          String?
+  followUpDate   DateTime?
+  status         CustomerStatus       @default(NEW)
+  serviceId      String
+  service        Service              @relation(fields: [serviceId], references: [id])
+  createdById    String?
+  createdBy      User?                @relation("CustomerCreatedBy", fields: [createdById], references: [id])
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  applications   ServiceApplication[]
+  payments       Payment[]
+  pvcOrders      PvcOrder[]
+  reminders      Reminder[]
+
+  @@index([mobile])
+  @@index([status])
+  @@index([followUpDate])
+}
+
+model ServiceApplication {
+  id             String          @id @default(cuid())
+  applicationNo  String          @unique
+  customerId     String
+  customer       Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  serviceId      String
+  service        Service         @relation(fields: [serviceId], references: [id])
+  currentStep    ApplicationStep @default(SUBMITTED)
+  status         CustomerStatus  @default(NEW)
+  timeline       TimelineEvent[]
+  submittedAt    DateTime        @default(now())
+  deliveredAt    DateTime?
+  notes          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([status])
+  @@index([currentStep])
+}
+
+model TimelineEvent {
+  id            String             @id @default(cuid())
+  applicationId String
+  application   ServiceApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  step          ApplicationStep
+  note          String?
+  occurredAt    DateTime           @default(now())
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  customerId String
+  customer  Customer      @relation(fields: [customerId], references: [id])
+  serviceId String
+  service   Service       @relation(fields: [serviceId], references: [id])
+  amount    Decimal       @db.Decimal(10, 2)
+  method    PaymentMethod
+  paidAt    DateTime      @default(now())
+  notes     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([paidAt])
+  @@index([method])
+}
+
+model Expense {
+  id        String          @id @default(cuid())
+  category  ExpenseCategory
+  amount    Decimal         @db.Decimal(10, 2)
+  spentAt   DateTime        @default(now())
+  vendor    String?
+  notes     String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([spentAt])
+  @@index([category])
+}
+
+model PvcOrder {
+  id          String    @id @default(cuid())
+  orderNo     String    @unique
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  cardType    String
+  status      PvcStatus @default(PRINT_QUEUE)
+  quantity    Int       @default(1)
+  queuedAt    DateTime  @default(now())
+  printedAt   DateTime?
+  deliveredAt DateTime?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status])
+}
+
+model Reminder {
+  id          String       @id @default(cuid())
+  customerId  String?
+  customer    Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  type        ReminderType
+  title       String
+  dueAt       DateTime
+  isCompleted Boolean      @default(false)
+  notes       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([dueAt])
+  @@index([isCompleted])
+}
+
+model BlogPost {
+  id              String     @id @default(cuid())
+  slug            String     @unique
+  title           String
+  excerpt         String
+  content         String
+  category        String
+  tags            String[]
+  featuredImage   String?
+  metaTitle       String
+  metaDescription String
+  status          BlogStatus @default(DRAFT)
+  scheduledAt     DateTime?
+  publishedAt     DateTime?
+  authorId        String
+  author          User       @relation(fields: [authorId], references: [id])
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([status])
+  @@index([publishedAt])
+}
+
+model Enquiry {
+  id        String   @id @default(cuid())
+  name      String
+  mobile    String
+  question  String
+  service   String?
+  source    String   @default("AI_CHATBOT")
+  createdAt DateTime @default(now())
+  isHandled Boolean  @default(false)
+
+  @@index([mobile])
+  @@index([isHandled])
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String
+  entityId  String?
+  metadata  Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([actorId])
+  @@index([entity])
+  @@index([createdAt])
+}

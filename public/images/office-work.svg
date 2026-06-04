@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Digital service center counter</title>
+  <desc id="desc">An organized service center workspace with documents, computer, printer, and service cards.</desc>
+  <rect width="1200" height="800" fill="#eef6f8"/>
+  <rect x="0" y="560" width="1200" height="240" fill="#d9e7df"/>
+  <rect x="120" y="150" width="960" height="470" rx="18" fill="#ffffff" stroke="#bfd1d9" stroke-width="3"/>
+  <rect x="170" y="210" width="360" height="230" rx="12" fill="#075985"/>
+  <rect x="195" y="235" width="310" height="160" rx="8" fill="#e0f2fe"/>
+  <rect x="255" y="455" width="190" height="24" rx="12" fill="#334155"/>
+  <rect x="680" y="245" width="260" height="170" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="3"/>
+  <rect x="710" y="280" width="200" height="18" rx="4" fill="#15803d"/>
+  <rect x="710" y="320" width="170" height="18" rx="4" fill="#0f766e"/>
+  <rect x="710" y="360" width="210" height="18" rx="4" fill="#ca8a04"/>
+  <rect x="645" y="455" width="340" height="74" rx="10" fill="#0f766e"/>
+  <rect x="670" y="478" width="115" height="18" rx="4" fill="#ccfbf1"/>
+  <rect x="805" y="478" width="150" height="18" rx="4" fill="#ccfbf1"/>
+  <rect x="190" y="520" width="810" height="34" rx="17" fill="#cbd5e1"/>
+  <circle cx="235" cy="660" r="46" fill="#f59e0b"/>
+  <rect x="310" y="635" width="160" height="50" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="3"/>
+  <rect x="520" y="620" width="160" height="80" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="3"/>
+  <rect x="730" y="635" width="230" height="50" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="3"/>
+  <text x="600" y="105" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#0f172a">Vraj Online Center</text>
+</svg>
