@@ -79,15 +79,20 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const format = request.nextUrl.searchParams.get("format") || "csv";
   const rows = await getRows(type);
 
-  if (format === "pdf") {
-    const pdf = await makePdfReport(...)
+ if (format === "pdf") {
+  const pdf = await makePdfReport(
+    `${type.toUpperCase()} Report`,
+    rows
+  );
 
-return new NextResponse(Buffer.from(pdf), {
-  headers: {
-    "Content-Type": "application/pdf",
-    "Content-Disposition": `attachment; filename="${type}-report.pdf"`
-  }
-})
+  return new NextResponse(Buffer.from(pdf), {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${type}-report.pdf"`
+    }
+  });
+}
+   
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${type}-report.pdf"`
