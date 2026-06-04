@@ -80,8 +80,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const rows = await getRows(type);
 
   if (format === "pdf") {
-    const pdf = await makePdfReport(`${type.toUpperCase()} Report`, rows);
-    return new NextResponse(pdf, {
+    const pdf = await makePdfReport(...)
+
+return new NextResponse(Buffer.from(pdf), {
+  headers: {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `attachment; filename="${type}-report.pdf"`
+  }
+})
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${type}-report.pdf"`
